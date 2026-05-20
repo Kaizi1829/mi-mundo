@@ -76,7 +76,7 @@ export default function AgendaHoy({ eventos = eventosDemo }: { eventos?: Evento[
       </div>
 
       <Link
-        href="/agenda"
+        href="/calendario"
         className="flex items-center justify-between pt-3 mt-1 border-t text-xs font-medium transition-smooth hover:opacity-70"
         style={{ borderColor: 'var(--border-light)', color: 'var(--accent)' }}
       >

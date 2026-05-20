@@ -1,6 +1,6 @@
 import WelcomeHeader from '@/components/dashboard/WelcomeHeader'
 import DailyVitals from '@/components/dashboard/DailyVitals'
-import AgendaHoy from '@/components/dashboard/AgendaHoy'
+import AgendaSemanal from '@/components/dashboard/AgendaSemanal'
 import FocusDelDia from '@/components/dashboard/FocusDelDia'
 import BalanceDeVida from '@/components/dashboard/BalanceDeVida'
 import QuoteWidget from '@/components/dashboard/QuoteWidget'
@@ -19,18 +19,22 @@ export default function Dashboard() {
       {/* Daily vitals */}
       <DailyVitals />
 
+      {/* Weekly agenda — full width, mixing calendar + tasks */}
+      <div className="mb-4">
+        <AgendaSemanal />
+      </div>
+
       {/* Main 3-column grid */}
       <div className="grid grid-cols-12 gap-4">
 
         {/* Column 1 */}
         <div className="col-span-4 flex flex-col gap-4">
-          <AgendaHoy />
           <BalanceDeVida />
+          <FocusDelDia />
         </div>
 
         {/* Column 2 */}
         <div className="col-span-4 flex flex-col gap-4">
-          <FocusDelDia />
           <QuoteWidget />
           <ObjetivosPrincipales />
         </div>

@@ -8,7 +8,7 @@ import {
 
 const navItems = [
   { href: '/',            icon: Home,          label: 'Inicio' },
-  { href: '/agenda',      icon: Calendar,      label: 'Agenda' },
+  { href: '/calendario',  icon: Calendar,      label: 'Calendario' },
   { href: '/tareas',      icon: CheckSquare,   label: 'Tareas' },
   { href: '/proyectos',   icon: FolderKanban,  label: 'Proyectos' },
   { href: '/finanzas',    icon: Wallet,        label: 'Finanzas' },
