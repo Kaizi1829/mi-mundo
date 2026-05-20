@@ -1,5 +1,5 @@
 'use client'
-import { Activity, Focus, Smile, Moon } from 'lucide-react'
+import { Activity, Crosshair, Smile, Moon } from 'lucide-react'
 import Card from '@/components/ui/Card'
 
 interface DailyVitalsProps {
@@ -19,7 +19,7 @@ export default function DailyVitals({
 }: DailyVitalsProps) {
   const vitals = [
     { icon: Activity, label: 'Energía', value: energia, sub: null },
-    { icon: Focus,    label: 'Enfoque', value: `${enfoque}/10`, sub: null },
+    { icon: Crosshair, label: 'Enfoque', value: `${enfoque}/10`, sub: null },
     { icon: Smile,    label: 'Estado de ánimo', value: estadoAnimo, sub: null },
     { icon: Moon,     label: 'Sueño', value: `${suenoHoras}h ${suenoMinutos}m`, sub: null },
   ]
