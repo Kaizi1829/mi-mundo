@@ -5,19 +5,35 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f7f2ec;
-  --card: #ffffff;
-  --sidebar: #fdfaf6;
-  --border: #ede5d8;
-  --text: #2d2520;
-  --muted: #8c7b6b;
-  --accent: #c9a96e;
-  --accent-dark: #b8924a;
+  /* Fondo general — arena suave */
+  --bg:           #eef2f6;
+  /* Tarjetas */
+  --card:         #ffffff;
+  /* Sidebar — navy profundo */
+  --sidebar:      #0d2137;
+  --sidebar-hover:#132d4a;
+  --sidebar-active:#1a3a5c;
+  /* Bordes */
+  --border:       #d4dde8;
+  --border-light: #e8eef4;
+  /* Texto */
+  --text:         #0d1f30;
+  --text-inv:     #f0f5fa;
+  --muted:        #5a7490;
+  --muted-inv:    #8daec7;
+  /* Acento principal — azul océano */
+  --accent:       #2c6e8a;
+  --accent-dark:  #1a4f66;
+  --accent-light: #4a9bb5;
+  /* Dorado latón marino */
+  --gold:         #c4a661;
+  --gold-light:   #d9c18a;
+  /* Arena */
+  --sand:         #e8dcc8;
+  --sand-light:   #f4efe6;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   background-color: var(--bg);
@@ -27,73 +43,61 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar personalizado */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #d9c4a0;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #c9a96e;
-}
+/* Scrollbar marino */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #b0c4d8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-/* Animaciones suaves */
 @layer utilities {
-  .transition-smooth {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
-  .gradient-gold {
-    background: linear-gradient(135deg, #c9a96e 0%, #e8d5a3 50%, #c9a96e 100%);
-  }
-
-  .gradient-warm {
-    background: linear-gradient(135deg, #f7f2ec 0%, #ede5d8 100%);
-  }
+  .transition-smooth { transition: all 0.2s cubic-bezier(0.4,0,0.2,1); }
 
   .card-shadow {
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 4px rgba(13,33,55,0.07), 0 1px 2px rgba(13,33,55,0.04);
   }
-
   .card-shadow-hover:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 6px 20px rgba(13,33,55,0.10), 0 2px 6px rgba(13,33,55,0.06);
     transform: translateY(-1px);
   }
 
-  .font-serif {
-    font-family: 'Playfair Display', Georgia, serif;
+  .font-serif { font-family: 'Playfair Display', Georgia, serif; }
+
+  /* Gradiente marino hero */
+  .gradient-ocean {
+    background: linear-gradient(135deg, #0d2137 0%, #1a3a5c 30%, #2c6e8a 65%, #4a9bb5 100%);
+  }
+  /* Shimmer dorado */
+  .gradient-gold {
+    background: linear-gradient(135deg, #c4a661 0%, #d9c18a 50%, #c4a661 100%);
   }
 }
 
-/* Progress bar animations */
+/* Sidebar nav items */
+.nav-item {
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.nav-item:hover {
+  background: rgba(255,255,255,0.07);
+}
+.nav-active {
+  background: rgba(74,155,181,0.18) !important;
+  color: #a8d5e2 !important;
+  border-right: 2px solid #4a9bb5;
+}
+
+/* Progress animation */
 @keyframes progress-fill {
   from { width: 0%; }
-  to { width: var(--progress-width); }
+  to   { width: var(--progress-width); }
 }
+.progress-bar { animation: progress-fill 1s ease-out forwards; }
 
-.progress-bar {
-  animation: progress-fill 1s ease-out forwards;
-}
-
-/* Sidebar active state */
-.nav-active {
-  background: linear-gradient(135deg, rgba(201, 169, 110, 0.15) 0%, rgba(201, 169, 110, 0.08) 100%);
-  color: #b8924a;
-  border-right: 2px solid #c9a96e;
-}
-
-.nav-item:hover {
-  background: rgba(201, 169, 110, 0.08);
+/* Divider con olas decorativo */
+.wave-divider {
+  background: repeating-linear-gradient(
+    90deg,
+    transparent, transparent 4px,
+    rgba(44,110,138,0.15) 4px, rgba(44,110,138,0.15) 5px
+  );
+  height: 1px;
 }

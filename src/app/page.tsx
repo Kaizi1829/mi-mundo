@@ -12,29 +12,30 @@ import WellnessWidget from '@/components/dashboard/WellnessWidget'
 export default function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Hero banner */}
+
+      {/* Ocean hero banner */}
       <WelcomeHeader nombre="tú" temperatura={24} ciudad="España" clima="sol" />
 
-      {/* Daily vitals row */}
+      {/* Daily vitals */}
       <DailyVitals />
 
-      {/* Main grid */}
+      {/* Main 3-column grid */}
       <div className="grid grid-cols-12 gap-4">
 
-        {/* Left column — Agenda + Balance */}
+        {/* Column 1 */}
         <div className="col-span-4 flex flex-col gap-4">
           <AgendaHoy />
           <BalanceDeVida />
         </div>
 
-        {/* Center column — Focus + Quote + Objetivos */}
+        {/* Column 2 */}
         <div className="col-span-4 flex flex-col gap-4">
           <FocusDelDia />
           <QuoteWidget />
           <ObjetivosPrincipales />
         </div>
 
-        {/* Right column — Viaje + Finanzas + Wellness */}
+        {/* Column 3 */}
         <div className="col-span-4 flex flex-col gap-4">
           <ProximoViaje />
           <ResumenFinanciero />
@@ -43,17 +44,18 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Footer tagline */}
-      <div className="text-center py-6 mt-2">
-        <p className="text-xs italic" style={{ color: 'var(--muted)' }}>
-          Respira. Planifica. Actúa. Disfruta. Repite.
-        </p>
-        <div className="flex items-center justify-center gap-2 mt-1">
-          <div className="h-px w-16" style={{ background: 'var(--border)' }} />
-          <span className="text-xs" style={{ color: 'var(--accent)' }}>✦</span>
-          <div className="h-px w-16" style={{ background: 'var(--border)' }} />
+      {/* Footer */}
+      <div className="text-center py-8 mt-2">
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, transparent, var(--accent))' }} />
+          <span style={{ color: 'var(--accent)', fontSize: 16 }}>⚓</span>
+          <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, var(--accent), transparent)' }} />
         </div>
+        <p className="text-xs font-medium uppercase tracking-widest" style={{ color: 'var(--muted)' }}>
+          Respira · Planifica · Actúa · Disfruta · Repite
+        </p>
       </div>
+
     </div>
   )
 }

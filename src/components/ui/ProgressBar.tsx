@@ -1,5 +1,5 @@
 interface ProgressBarProps {
-  value: number       // 0-100
+  value: number
   color?: string
   height?: number
   animated?: boolean
@@ -7,14 +7,14 @@ interface ProgressBarProps {
 
 export default function ProgressBar({
   value,
-  color = '#c9a96e',
+  color = '#2c6e8a',
   height = 6,
   animated = true,
 }: ProgressBarProps) {
   return (
     <div
       className="w-full rounded-full overflow-hidden"
-      style={{ height, background: '#ede5d8' }}
+      style={{ height, background: 'var(--border)' }}
     >
       <div
         className={animated ? 'progress-bar' : ''}

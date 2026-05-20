@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Home, Calendar, CheckSquare, FolderKanban, Wallet,
-  Plane, Target, Heart, BookOpen, BookMarked, Library, Settings, LogOut,
+  Plane, Target, Heart, BookOpen, BookMarked, Library, Settings, LogOut, Anchor,
 } from 'lucide-react'
 
 const navItems = [
@@ -25,40 +25,52 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="w-56 flex-shrink-0 flex flex-col border-r"
-      style={{ background: 'var(--sidebar)', borderColor: 'var(--border)' }}
+      className="w-56 flex-shrink-0 flex flex-col border-r border-white/5"
+      style={{ background: 'var(--sidebar)' }}
     >
       {/* Logo */}
-      <div className="px-5 pt-6 pb-4">
-        <div className="flex flex-col">
+      <div className="px-5 pt-7 pb-5">
+        <div className="flex items-center gap-2.5 mb-1">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{ background: 'var(--gold)' }}
+          >
+            <Anchor size={14} color="#0d2137" strokeWidth={2} />
+          </div>
           <span
-            className="text-xl font-serif font-semibold tracking-wide"
-            style={{ color: 'var(--accent-dark)' }}
+            className="text-lg font-serif font-semibold tracking-wide"
+            style={{ color: '#f0f5fa' }}
           >
             MI MUNDO
           </span>
-          <span className="text-xs italic mt-0.5" style={{ color: 'var(--muted)' }}>
-            tu vida, tu diseño
-          </span>
         </div>
-        {/* decorative line */}
-        <div className="mt-3 h-px w-12" style={{ background: 'var(--accent)' }} />
+        <p className="text-xs italic pl-9" style={{ color: 'var(--muted-inv)' }}>
+          tu vida, tu diseño
+        </p>
+        {/* Separador dorado */}
+        <div className="mt-4 h-px w-full" style={{ background: 'linear-gradient(90deg, var(--gold) 0%, transparent 100%)', opacity: 0.35 }} />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-1 space-y-0.5 overflow-y-auto">
         {navItems.map(({ href, icon: Icon, label }) => {
           const isActive = pathname === href
           return (
             <Link
               key={href}
               href={href}
-              className={`nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-smooth ${
+              className={`nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${
                 isActive ? 'nav-active' : ''
               }`}
-              style={{ color: isActive ? 'var(--accent-dark)' : 'var(--muted)' }}
+              style={{
+                color: isActive ? '#a8d5e2' : 'var(--muted-inv)',
+              }}
             >
-              <Icon size={16} strokeWidth={isActive ? 2 : 1.5} />
+              <Icon
+                size={15}
+                strokeWidth={isActive ? 2 : 1.5}
+                style={{ color: isActive ? '#4a9bb5' : 'var(--muted-inv)' }}
+              />
               {label}
             </Link>
           )
@@ -66,32 +78,38 @@ export default function Sidebar() {
       </nav>
 
       {/* Quote */}
-      <div className="px-4 py-4 border-t" style={{ borderColor: 'var(--border)' }}>
-        <p className="text-xs leading-relaxed italic" style={{ color: 'var(--muted)' }}>
-          &ldquo;Organizar tu vida no es quitarte libertad, es hacer espacio para lo que importa.&rdquo;
+      <div
+        className="mx-3 mb-3 rounded-xl px-4 py-3"
+        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--muted-inv)', opacity: 0.7 }}>
+          &ldquo;El mar no te pregunta si estás listo.&rdquo;
         </p>
-        <div className="mt-3 flex items-center gap-2">
-          <div className="h-px flex-1" style={{ background: 'var(--border)' }} />
-          <span className="text-xs" style={{ color: 'var(--accent)' }}>✦</span>
-          <div className="h-px flex-1" style={{ background: 'var(--border)' }} />
+        <div className="mt-2 flex items-center gap-2">
+          <div className="h-px flex-1" style={{ background: 'rgba(196,166,97,0.3)' }} />
+          <span style={{ color: 'var(--gold)', fontSize: 10 }}>⚓</span>
+          <div className="h-px flex-1" style={{ background: 'rgba(196,166,97,0.3)' }} />
         </div>
       </div>
 
-      {/* Bottom actions */}
-      <div className="px-3 pb-4 space-y-0.5">
+      {/* Bottom */}
+      <div
+        className="px-3 pb-4 pt-2 space-y-0.5 border-t"
+        style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+      >
         <Link
           href="/configuracion"
-          className="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-smooth"
-          style={{ color: 'var(--muted)' }}
+          className="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm"
+          style={{ color: 'var(--muted-inv)' }}
         >
-          <Settings size={15} strokeWidth={1.5} />
+          <Settings size={14} strokeWidth={1.5} />
           Configuración
         </Link>
         <button
-          className="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-smooth"
-          style={{ color: 'var(--muted)' }}
+          className="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm"
+          style={{ color: 'var(--muted-inv)' }}
         >
-          <LogOut size={15} strokeWidth={1.5} />
+          <LogOut size={14} strokeWidth={1.5} />
           Cerrar sesión
         </button>
       </div>

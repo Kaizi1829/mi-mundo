@@ -11,7 +11,11 @@ export default function Card({ children, className = '', hover = false, style }:
   return (
     <div
       className={`rounded-2xl p-4 card-shadow ${hover ? 'card-shadow-hover transition-smooth cursor-pointer' : ''} ${className}`}
-      style={{ background: 'var(--card)', border: '1px solid var(--border)', ...style }}
+      style={{
+        background: 'var(--card)',
+        border: '1px solid var(--border-light)',
+        ...style,
+      }}
     >
       {children}
     </div>

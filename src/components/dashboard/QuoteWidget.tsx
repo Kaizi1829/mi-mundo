@@ -2,22 +2,30 @@ import Card from '@/components/ui/Card'
 
 const quotes = [
   { text: 'La vida no se trata de encontrarte a ti misma, sino de crearte a ti misma.', author: 'George Bernard Shaw' },
-  { text: 'El secreto para avanzar es comenzar.', author: 'Mark Twain' },
-  { text: 'Cree en ti misma y en todo lo que eres.', author: 'Christian D. Larson' },
-  { text: 'Haz cada día tu obra maestra.', author: 'John Wooden' },
+  { text: 'El mar es el gran igualador. En él solo cuenta quién eres de verdad.', author: 'Anónimo' },
+  { text: 'Las olas del pasado te trajeron aquí. Tú decides hacia dónde navegas.', author: 'Proverbio marino' },
+  { text: 'La disciplina es el ancla que te permite volar lejos.', author: 'Anónimo' },
 ]
 
 export default function QuoteWidget() {
   const q = quotes[new Date().getDate() % quotes.length]
   return (
-    <Card className="flex flex-col justify-center items-center text-center py-6" style={{ background: 'linear-gradient(135deg,#f9f4ec,#f2e8d8)' }}>
-      <span className="text-3xl mb-3 opacity-30 font-serif" style={{ color: 'var(--accent-dark)' }}>&ldquo;</span>
-      <p className="text-sm font-light leading-relaxed italic mb-3 px-2" style={{ color: 'var(--text)' }}>
+    <div
+      className="rounded-2xl p-5 flex flex-col items-center text-center"
+      style={{
+        background: 'linear-gradient(135deg, #0d2137 0%, #1a3a5c 100%)',
+        border: '1px solid rgba(74,155,181,0.2)',
+      }}
+    >
+      <div className="w-8 h-px mb-4" style={{ background: 'var(--gold)' }} />
+      <span className="text-4xl mb-3 font-serif leading-none" style={{ color: 'rgba(74,155,181,0.4)' }}>&ldquo;</span>
+      <p className="text-sm font-light leading-relaxed italic mb-4" style={{ color: '#a8d5e2' }}>
         {q.text}
       </p>
-      <p className="text-xs uppercase tracking-widest font-medium" style={{ color: 'var(--muted)' }}>
+      <p className="text-xs font-medium uppercase tracking-widest" style={{ color: 'var(--gold)' }}>
         {q.author}
       </p>
-    </Card>
+      <div className="w-8 h-px mt-4" style={{ background: 'var(--gold)', opacity: 0.5 }} />
+    </div>
   )
 }

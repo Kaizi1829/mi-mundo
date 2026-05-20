@@ -26,31 +26,35 @@ export default function ResumenFinanciero({
 
   return (
     <Card className="flex flex-col">
-      <div className="flex items-center justify-between mb-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 pb-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
         <div>
-          <h2 className="text-base font-semibold font-serif" style={{ color: 'var(--text)' }}>
-            Resumen financiero
-          </h2>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>{mesLabel}</p>
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-4 rounded-full" style={{ background: 'linear-gradient(180deg, #2c6e8a, #4a9bb5)' }} />
+            <h2 className="text-sm font-semibold tracking-wide uppercase" style={{ color: 'var(--text)', letterSpacing: '0.05em' }}>
+              Resumen financiero
+            </h2>
+          </div>
+          <p className="text-xs mt-0.5 pl-3" style={{ color: 'var(--muted)' }}>{mesLabel}</p>
         </div>
-        <button style={{ color: 'var(--muted)' }}><MoreVertical size={16} /></button>
+        <button style={{ color: 'var(--muted)' }}><MoreVertical size={15} /></button>
       </div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      {/* KPIs */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
         {[
-          { label: 'Ingresos', value: ingresos, icon: TrendingUp, color: '#8fad88' },
-          { label: 'Gastos',   value: gastos,   icon: TrendingDown, color: '#d4a5a5' },
-          { label: 'Ahorros',  value: ahorros,  icon: ArrowUpRight, color: '#7aa8c0' },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label}>
-            <p className="text-xs mb-1" style={{ color: 'var(--muted)' }}>{label}</p>
-            <div className="flex items-center gap-1">
-              <span className="text-base font-bold" style={{ color: 'var(--text)' }}>
-                {value.toLocaleString('es-ES')} €
-              </span>
-              <Icon size={14} style={{ color }} strokeWidth={1.5} />
+          { label: 'Ingresos', value: ingresos, icon: TrendingUp,   color: '#2c6e8a',  bg: 'rgba(44,110,138,0.08)' },
+          { label: 'Gastos',   value: gastos,   icon: TrendingDown, color: '#c4a661',  bg: 'rgba(196,166,97,0.10)' },
+          { label: 'Ahorros',  value: ahorros,  icon: ArrowUpRight, color: '#4a9bb5',  bg: 'rgba(74,155,181,0.08)' },
+        ].map(({ label, value, icon: Icon, color, bg }) => (
+          <div key={label} className="rounded-xl p-3" style={{ background: bg }}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>{label}</span>
+              <Icon size={13} style={{ color }} strokeWidth={1.5} />
             </div>
+            <p className="text-base font-bold" style={{ color: 'var(--text)' }}>
+              {value.toLocaleString('es-ES')} €
+            </p>
           </div>
         ))}
       </div>
@@ -58,28 +62,26 @@ export default function ResumenFinanciero({
       {/* Chart */}
       <div className="mb-3">
         <div className="flex items-center gap-4 mb-2">
-          <span className="text-xs" style={{ color: 'var(--muted)' }}>Evolución del mes</span>
+          <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted)' }}>Evolución</span>
           <div className="flex items-center gap-3 ml-auto">
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full" style={{ background: '#c9a96e' }} />
-              <span className="text-xs" style={{ color: 'var(--muted)' }}>Ingresos</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full" style={{ background: '#8fad88' }} />
-              <span className="text-xs" style={{ color: 'var(--muted)' }}>Gastos</span>
-            </div>
+            {[{ label: 'Ingresos', color: '#2c6e8a' }, { label: 'Gastos', color: '#c4a661' }].map(l => (
+              <div key={l.label} className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: l.color }} />
+                <span className="text-xs" style={{ color: 'var(--muted)' }}>{l.label}</span>
+              </div>
+            ))}
           </div>
         </div>
-        <ResponsiveContainer width="100%" height={100}>
+        <ResponsiveContainer width="100%" height={90}>
           <LineChart data={chartData} margin={{ top: 0, right: 0, left: -30, bottom: 0 }}>
-            <XAxis dataKey="dia" tick={{ fontSize: 10, fill: '#8c7b6b' }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 10, fill: '#8c7b6b' }} axisLine={false} tickLine={false} />
+            <XAxis dataKey="dia" tick={{ fontSize: 9, fill: '#5a7490' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 9, fill: '#5a7490' }} axisLine={false} tickLine={false} />
             <Tooltip
-              contentStyle={{ background: '#fff', border: '1px solid #ede5d8', borderRadius: 8, fontSize: 12 }}
+              contentStyle={{ background: '#0d2137', border: '1px solid rgba(74,155,181,0.3)', borderRadius: 8, fontSize: 11, color: '#a8d5e2' }}
               formatter={(v: number) => [`${v.toLocaleString('es-ES')} €`]}
             />
-            <Line type="monotone" dataKey="ingresos" stroke="#c9a96e" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="gastos"   stroke="#8fad88" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="ingresos" stroke="#2c6e8a" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="gastos"   stroke="#c4a661" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -87,7 +89,7 @@ export default function ResumenFinanciero({
       <Link
         href="/finanzas"
         className="flex items-center justify-between pt-3 border-t text-xs font-medium transition-smooth hover:opacity-70"
-        style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
+        style={{ borderColor: 'var(--border-light)', color: 'var(--accent)' }}
       >
         Ver informe completo
         <ChevronRight size={14} />

@@ -1,5 +1,5 @@
 'use client'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Clock } from 'lucide-react'
 import Link from 'next/link'
 import Card from '@/components/ui/Card'
 import { format } from 'date-fns'
@@ -13,12 +13,12 @@ interface Evento {
 }
 
 const eventosDemo: Evento[] = [
-  { hora: '09:00', titulo: 'Reunión equipo AXA',   descripcion: 'Online',          color: '#c9a96e' },
-  { hora: '11:30', titulo: 'Gestión de pólizas',   descripcion: 'AXA',             color: '#7aa8c0' },
-  { hora: '14:00', titulo: 'Comida',                descripcion: 'Tiempo personal', color: '#8fad88' },
-  { hora: '16:00', titulo: 'Neting Marbella',       descripcion: 'Reunión',         color: '#c9a96e' },
-  { hora: '18:30', titulo: 'Entrenamiento',         descripcion: 'Gimnasio',        color: '#8fad88' },
-  { hora: '20:30', titulo: 'Cena con amigas',      descripcion: 'Tiempo personal', color: '#d4a5a5' },
+  { hora: '09:00', titulo: 'Reunión equipo AXA',   descripcion: 'Online',          color: '#2c6e8a' },
+  { hora: '11:30', titulo: 'Gestión de pólizas',   descripcion: 'AXA',             color: '#4a9bb5' },
+  { hora: '14:00', titulo: 'Comida',               descripcion: 'Tiempo personal', color: '#c4a661' },
+  { hora: '16:00', titulo: 'Neting Marbella',      descripcion: 'Reunión',         color: '#1a3a5c' },
+  { hora: '18:30', titulo: 'Entrenamiento',        descripcion: 'Gimnasio',        color: '#2c6e8a' },
+  { hora: '20:30', titulo: 'Cena con amigas',     descripcion: 'Tiempo personal', color: '#c4a661' },
 ]
 
 export default function AgendaHoy({ eventos = eventosDemo }: { eventos?: Evento[] }) {
@@ -27,28 +27,46 @@ export default function AgendaHoy({ eventos = eventosDemo }: { eventos?: Evento[
 
   return (
     <Card className="flex flex-col h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-semibold font-serif" style={{ color: 'var(--text)' }}>
-          Agenda de hoy
-        </h2>
-        <span className="text-xs" style={{ color: 'var(--muted)' }}>{hoyLabel}</span>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 pb-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
+        <div className="flex items-center gap-2">
+          <Clock size={15} style={{ color: 'var(--accent)' }} strokeWidth={1.5} />
+          <h2 className="text-sm font-semibold tracking-wide uppercase" style={{ color: 'var(--text)', letterSpacing: '0.05em' }}>
+            Agenda de hoy
+          </h2>
+        </div>
+        <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>{hoyLabel}</span>
       </div>
 
-      <div className="flex-1 space-y-3 overflow-y-auto">
+      {/* Timeline */}
+      <div className="flex-1 space-y-0 overflow-y-auto">
         {eventos.map((ev, i) => (
-          <div key={i} className="flex items-start gap-3 group">
-            {/* Timeline */}
-            <div className="flex flex-col items-center flex-shrink-0 w-10">
-              <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>{ev.hora}</span>
-              <div className="w-px flex-1 mt-1 min-h-4" style={{ background: 'var(--border)' }} />
+          <div key={i} className="flex items-stretch gap-3 group">
+            {/* Time column */}
+            <div className="flex flex-col items-end w-12 flex-shrink-0 pt-2">
+              <span className="text-xs font-medium tabular-nums" style={{ color: 'var(--muted)' }}>{ev.hora}</span>
             </div>
-            {/* Dot + Content */}
-            <div className="flex items-start gap-2 pb-3 flex-1">
+            {/* Line + dot */}
+            <div className="flex flex-col items-center flex-shrink-0">
               <div
-                className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                className="w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0 ring-2 ring-white"
                 style={{ background: ev.color }}
               />
-              <div>
+              {i < eventos.length - 1 && (
+                <div className="w-px flex-1 mt-1" style={{ background: 'var(--border)' }} />
+              )}
+            </div>
+            {/* Content */}
+            <div
+              className="flex-1 pb-3 pl-1 group-hover:opacity-90 transition-smooth"
+            >
+              <div
+                className="rounded-lg px-3 py-2 mb-0.5"
+                style={{
+                  background: `${ev.color}0a`,
+                  borderLeft: `2px solid ${ev.color}`,
+                }}
+              >
                 <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>{ev.titulo}</p>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>{ev.descripcion}</p>
               </div>
@@ -59,8 +77,8 @@ export default function AgendaHoy({ eventos = eventosDemo }: { eventos?: Evento[
 
       <Link
         href="/agenda"
-        className="flex items-center justify-between pt-3 border-t text-xs font-medium transition-smooth hover:opacity-70"
-        style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
+        className="flex items-center justify-between pt-3 mt-1 border-t text-xs font-medium transition-smooth hover:opacity-70"
+        style={{ borderColor: 'var(--border-light)', color: 'var(--accent)' }}
       >
         Ver calendario completo
         <ChevronRight size={14} />
