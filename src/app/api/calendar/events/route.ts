@@ -36,6 +36,11 @@ const CALENDARS = [
     name:  'Trabajo',
     color: '#5a7490',   // slate blue
   },
+  {
+    url:   'https://calendar.google.com/calendar/ical/kp38op6eru6bflneq8rb59v500%40group.calendar.google.com/public/basic.ics',
+    name:  'Viajes',
+    color: '#1a7a5e',   // sea green
+  },
 ] as const
 
 // ─── Route ───────────────────────────────────────────────────────────────────
