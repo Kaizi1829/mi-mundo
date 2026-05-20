@@ -170,16 +170,22 @@ export default function AgendaSemanal() {
                     return (
                       <div
                         key={ev.id}
-                        className="rounded px-1.5 py-0.5 text-xs leading-snug"
+                        className="rounded px-1.5 py-1 text-xs leading-snug"
                         style={{ background: `${c}15`, borderLeft: `2px solid ${c}` }}
                         title={ev.title}
                       >
                         {!ev.allDay && (
-                          <span className="font-semibold block" style={{ color: c, fontSize: 10 }}>
+                          <span
+                            className="font-bold block"
+                            style={{ color: c, fontSize: 11, lineHeight: 1.2 }}
+                          >
                             {format(new Date(ev.start), 'HH:mm')}
                           </span>
                         )}
-                        <span className="truncate block" style={{ color: '#1a2e44', maxWidth: '100%' }}>
+                        <span
+                          className="truncate block"
+                          style={{ color: '#1a2e44', fontSize: 11, lineHeight: 1.3 }}
+                        >
                           {ev.title}
                         </span>
                       </div>

@@ -144,16 +144,25 @@ export function parseIcal(text: string): CalEvent[] {
 
 // ─── Helper functions for UI ───────────────────────────────────────────────────
 
-/** Events that overlap a given calendar day */
+/** Events that overlap a given calendar day.
+ *  Long-span events (> 30 days) are only shown on their start date to avoid
+ *  season-long or year-long entries flooding every cell of the calendar.
+ */
 export function eventsForDay(events: CalEvent[], day: Date): CalEvent[] {
   const y = day.getFullYear(), m = day.getMonth(), d = day.getDate()
   const dayStart = new Date(y, m, d, 0, 0, 0).getTime()
   const dayEnd   = new Date(y, m, d, 23, 59, 59).getTime()
+  const MAX_SPAN = 30 * 24 * 60 * 60 * 1000   // 30 days
+
   return events
     .filter(e => {
-      const s = new Date(e.start).getTime()
+      const s  = new Date(e.start).getTime()
       const en = new Date(e.end).getTime()
-      return s <= dayEnd && en >= dayStart
+      // Not overlapping this day at all
+      if (s > dayEnd || en < dayStart) return false
+      // Long event: only render on its start date
+      if (en - s > MAX_SPAN) return s >= dayStart && s <= dayEnd
+      return true
     })
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
 }

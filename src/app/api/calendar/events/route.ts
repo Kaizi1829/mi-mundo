@@ -19,7 +19,7 @@ const CALENDARS = [
   {
     url:   'https://calendar.google.com/calendar/ical/0f748475bd9584ce4c8322e73cca9a8fd5bc047cf2849bfd6af9376775d79767%40group.calendar.google.com/public/basic.ics',
     name:  'Comparsa',
-    color: '#e07b39',   // warm orange
+    color: '#9c5de8',   // purple
   },
   {
     url:   'https://calendar.google.com/calendar/ical/h0ura0ptlm86bqsrv3d3kftgs4%40group.calendar.google.com/public/basic.ics',
@@ -29,7 +29,7 @@ const CALENDARS = [
   {
     url:   'https://calendar.google.com/calendar/ical/urao0r7skaoasitbeaeefuapd0%40group.calendar.google.com/public/basic.ics',
     name:  'Médico',
-    color: '#dc3545',   // medical red
+    color: '#22c55e',   // light green
   },
   {
     url:   'https://calendar.google.com/calendar/ical/utk7v6f8d0v2q75c1etpm38cuk%40group.calendar.google.com/public/basic.ics',
