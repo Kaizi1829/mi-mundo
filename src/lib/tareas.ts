@@ -89,7 +89,9 @@ export const ESTADO_CONFIG = {
 const db = supabase as any
 
 export async function getAreas(): Promise<Area[]> {
-  const { data } = await db.from('areas').select('*').order('orden')
+  const { data, error } = await db.from('areas').select('*').order('orden')
+  if (error) console.error('[getAreas] error:', error)
+  if (!data?.length) console.warn('[getAreas] returned empty:', { data, error })
   return (data ?? []) as Area[]
 }
 

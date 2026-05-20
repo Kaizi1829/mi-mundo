@@ -1,6 +1,6 @@
 'use client'
-import { useState, useRef } from 'react'
-import { Mic, MicOff, Sparkles, X } from 'lucide-react'
+import { useState } from 'react'
+import { Sparkles, X } from 'lucide-react'
 import type { Area, TareaInput } from '@/lib/tareas'
 
 interface QuickAddProps {
@@ -188,26 +188,7 @@ function parsear(text: string, areas: Area[]): Partial<TareaInput> {
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 export default function QuickAdd({ areas, onParsed }: QuickAddProps) {
-  const [text, setText]         = useState('')
-  const [listening, setListening] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null)
-
-  const startVoice = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SR) { alert('Usa Chrome para reconocimiento de voz'); return }
-    const r = new SR()
-    r.lang = 'es-ES'; r.continuous = false; r.interimResults = false
-    r.onstart  = () => setListening(true)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    r.onresult = (e: any) => { setText(e.results[0][0].transcript); setListening(false) }
-    r.onerror  = () => setListening(false)
-    r.onend    = () => setListening(false)
-    r.start(); recognitionRef.current = r
-  }
-
-  const stopVoice = () => { recognitionRef.current?.stop(); setListening(false) }
+  const [text, setText] = useState('')
 
   const handleSubmit = () => {
     if (!text.trim()) return
@@ -230,32 +211,16 @@ export default function QuickAdd({ areas, onParsed }: QuickAddProps) {
       </p>
 
       <div className="flex gap-2">
-        {/* Mic */}
-        <button
-          onClick={listening ? stopVoice : startVoice}
-          className="flex-none w-10 h-10 rounded-xl flex items-center justify-center transition-all"
-          style={{
-            background: listening ? 'rgba(220,53,69,0.18)' : 'rgba(196,166,97,0.12)',
-            border: `1px solid ${listening ? 'rgba(220,53,69,0.45)' : 'rgba(196,166,97,0.28)'}`,
-          }}
-          title={listening ? 'Detener' : 'Dictar por voz (Chrome)'}
-        >
-          {listening
-            ? <MicOff size={16} style={{ color: '#dc3545' }} />
-            : <Mic    size={16} style={{ color: '#c4a661' }} />}
-        </button>
-
-        {/* Input */}
         <input
           type="text"
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-          placeholder={listening ? '🎤 Escuchando...' : 'Ej: Tengo que revisar la póliza de Tamudo, para el viernes, es de AXA...'}
+          placeholder="Ej: Revisar póliza de Tamudo para el viernes, es de AXA..."
           className="flex-1 rounded-xl px-4 text-sm outline-none h-10"
           style={{
             background: 'rgba(255,255,255,0.06)',
-            border: `1px solid ${listening ? 'rgba(220,53,69,0.35)' : 'rgba(74,155,181,0.22)'}`,
+            border: '1px solid rgba(74,155,181,0.22)',
             color: '#f0f5fa',
           }}
         />
@@ -280,7 +245,7 @@ export default function QuickAdd({ areas, onParsed }: QuickAddProps) {
       </div>
 
       <p className="text-xs mt-2.5" style={{ color: 'rgba(168,213,226,0.38)' }}>
-        Detecta: día · área (AXA · OPA · Neting · Personal) · urgente · hora — el resto va a descripción
+        Detecta fecha · área (AXA · OPA · Neting · Personal) · urgente — o dímelo en el chat y lo añado yo
       </p>
     </div>
   )
