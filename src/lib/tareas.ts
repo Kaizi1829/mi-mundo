@@ -112,7 +112,18 @@ export async function getTareas(filtros?: {
 }
 
 export async function crearTarea(input: TareaInput): Promise<Tarea | null> {
-  const { data } = await db.from('tareas').insert(input).select('*, area:areas(*)').single()
+  // Don't send fecha_completada on create — DB handles it as null by default
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { fecha_completada, ...payload } = input
+  const { data, error } = await db
+    .from('tareas')
+    .insert(payload)
+    .select('*, area:areas(*), subtareas(*)')
+    .single()
+  if (error) {
+    console.error('[crearTarea] Supabase error:', error)
+    throw new Error(error.message ?? 'Error al crear la tarea')
+  }
   return data as Tarea | null
 }
 

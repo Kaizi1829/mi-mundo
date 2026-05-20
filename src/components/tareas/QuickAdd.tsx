@@ -8,151 +8,187 @@ interface QuickAddProps {
   onParsed: (data: Partial<TareaInput>) => void
 }
 
-// ─── Spanish NLP parser ────────────────────────────────────────────────────
-function parseTaskText(text: string, areas: Area[]): Partial<TareaInput> {
-  const lower = text.toLowerCase()
-  const today = new Date()
-  const toISO = (d: Date) => d.toISOString().split('T')[0]
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-  // ── Fecha ────────────────────────────────────────────────────────────────
-  let fecha_vencimiento: string | null = null
+function toISO(d: Date) { return d.toISOString().split('T')[0] }
+
+// ─── Fecha ────────────────────────────────────────────────────────────────────
+function detectarFecha(lower: string): string | null {
+  const today = new Date()
 
   if (/pasado\s+mañana/.test(lower)) {
-    const d = new Date(today); d.setDate(d.getDate() + 2); fecha_vencimiento = toISO(d)
-  } else if (/mañana/.test(lower)) {
-    const d = new Date(today); d.setDate(d.getDate() + 1); fecha_vencimiento = toISO(d)
-  } else if (/\bhoy\b/.test(lower)) {
-    fecha_vencimiento = toISO(today)
-  } else if (/esta\s+semana/.test(lower)) {
+    const d = new Date(today); d.setDate(d.getDate() + 2); return toISO(d)
+  }
+  if (/mañana/.test(lower)) {
+    const d = new Date(today); d.setDate(d.getDate() + 1); return toISO(d)
+  }
+  if (/\bhoy\b/.test(lower)) return toISO(today)
+  if (/esta\s+semana/.test(lower)) {
     const d = new Date(today)
-    const fri = 5 - d.getDay()
-    d.setDate(d.getDate() + (fri <= 0 ? fri + 7 : fri))
-    fecha_vencimiento = toISO(d)
-  } else if (/próxima\s+semana|proxima\s+semana/.test(lower)) {
-    const d = new Date(today)
-    d.setDate(d.getDate() + (8 - d.getDay()))
-    fecha_vencimiento = toISO(d)
+    const fri = 5 - d.getDay(); d.setDate(d.getDate() + (fri <= 0 ? fri + 7 : fri)); return toISO(d)
+  }
+  if (/próxima\s+semana|proxima\s+semana/.test(lower)) {
+    const d = new Date(today); d.setDate(d.getDate() + (8 - d.getDay())); return toISO(d)
   }
 
-  // Día de la semana
-  if (!fecha_vencimiento) {
-    const dayMap: Record<string, number> = {
-      lunes: 1, martes: 2, 'miércoles': 3, miercoles: 3,
-      jueves: 4, viernes: 5, 'sábado': 6, sabado: 6, domingo: 0,
-    }
-    for (const [name, num] of Object.entries(dayMap)) {
-      if (lower.includes(name)) {
-        const d = new Date(today)
-        let diff = num - d.getDay()
-        if (diff <= 0) diff += 7
-        d.setDate(d.getDate() + diff)
-        fecha_vencimiento = toISO(d)
-        break
-      }
+  const dayMap: Record<string, number> = {
+    lunes: 1, martes: 2, 'miércoles': 3, miercoles: 3,
+    jueves: 4, viernes: 5, 'sábado': 6, sabado: 6, domingo: 0,
+  }
+  for (const [name, num] of Object.entries(dayMap)) {
+    if (lower.includes(name)) {
+      const d = new Date(today); let diff = num - d.getDay()
+      if (diff <= 0) diff += 7; d.setDate(d.getDate() + diff); return toISO(d)
     }
   }
 
-  // "el 15 de mayo/junio/..."
-  if (!fecha_vencimiento) {
-    const meses: Record<string, number> = {
-      enero: 0, febrero: 1, marzo: 2, abril: 3, mayo: 4, junio: 5,
-      julio: 6, agosto: 7, septiembre: 8, octubre: 9, noviembre: 10, diciembre: 11,
-    }
-    const m = lower.match(
-      /el\s+(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/
-    )
-    if (m) {
-      const d = new Date(today.getFullYear(), meses[m[2]], parseInt(m[1]))
-      if (d < today) d.setFullYear(d.getFullYear() + 1)
-      fecha_vencimiento = toISO(d)
-    }
+  const meses: Record<string, number> = {
+    enero: 0, febrero: 1, marzo: 2, abril: 3, mayo: 4, junio: 5,
+    julio: 6, agosto: 7, septiembre: 8, octubre: 9, noviembre: 10, diciembre: 11,
+  }
+  const mFull = lower.match(
+    /el\s+(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/
+  )
+  if (mFull) {
+    const d = new Date(today.getFullYear(), meses[mFull[2]], parseInt(mFull[1]))
+    if (d < today) d.setFullYear(d.getFullYear() + 1); return toISO(d)
   }
 
-  // "el 15"
-  if (!fecha_vencimiento) {
-    const m = lower.match(/\bel\s+(\d{1,2})\b/)
-    if (m) {
-      const day = parseInt(m[1])
-      if (day >= 1 && day <= 31) {
-        const d = new Date(today.getFullYear(), today.getMonth(), day)
-        if (d <= today) d.setMonth(d.getMonth() + 1)
-        fecha_vencimiento = toISO(d)
-      }
+  const mDay = lower.match(/\bel\s+(\d{1,2})\b/)
+  if (mDay) {
+    const day = parseInt(mDay[1])
+    if (day >= 1 && day <= 31) {
+      const d = new Date(today.getFullYear(), today.getMonth(), day)
+      if (d <= today) d.setMonth(d.getMonth() + 1); return toISO(d)
     }
   }
+  return null
+}
 
-  // ── Prioridad ─────────────────────────────────────────────────────────────
-  let prioridad: 'alta' | 'media' | 'baja' = 'media'
-  if (/urgente|crítico|critico|asap|inmediato|ya mismo|\bya\b/.test(lower)) prioridad = 'alta'
-  else if (/sin prisa|cuando pueda|baja prioridad|no\s+es\s+urgente/.test(lower)) prioridad = 'baja'
-
-  // ── Área ──────────────────────────────────────────────────────────────────
-  let area_id: string | null = null
-
-  // Buscar nombre de área directamente en el texto
+// ─── Área ─────────────────────────────────────────────────────────────────────
+function detectarArea(lower: string, areas: Area[]): string | null {
+  // 1. Nombre directo
   for (const a of areas) {
-    if (lower.includes(a.nombre.toLowerCase())) {
-      area_id = a.id; break
-    }
+    if (lower.includes(a.nombre.toLowerCase())) return a.id
   }
-
-  // Keywords si no se detectó por nombre
-  if (!area_id) {
-    const kwMap: Record<string, string[]> = {
-      axa:     ['seguro', 'póliza', 'poliza', 'siniestro', 'mediador', 'mútua', 'mutua', 'aseguradora'],
-      opa:     ['oposici', 'concurso', 'badajoz', 'mérida', 'merida', 'extremadura', 'temario'],
-      neting:  ['neting', 'marketing', 'campaña', 'web', 'redes sociales', 'instagram', 'cliente neting'],
-      personal: ['médico', 'medico', 'dentista', 'familia', 'colegio', 'cumpleaños', 'vacaciones', 'casa', 'recado'],
-    }
-    outer: for (const [areaName, words] of Object.entries(kwMap)) {
-      for (const w of words) {
-        if (lower.includes(w)) {
-          area_id = areas.find(a => a.nombre.toLowerCase() === areaName)?.id ?? null
-          if (area_id) break outer
-        }
+  // 2. Keywords por área
+  const kw: Record<string, string[]> = {
+    axa:      ['seguro', 'póliza', 'poliza', 'siniestro', 'mediador', 'mútua', 'mutua', 'aseguradora', 'cliente axa'],
+    opa:      ['oposici', 'concurso', 'badajoz', 'mérida', 'merida', 'extremadura', 'temario', 'tema ', 'examen'],
+    neting:   ['neting', 'marketing', 'campaña', 'campaña', 'redes sociales', 'instagram', 'facebook', 'web '],
+    personal: ['médico', 'medico', 'dentista', 'familia', 'colegio', 'cumpleaños', 'vacaciones', 'casa ', 'recado', 'compra'],
+  }
+  for (const [name, words] of Object.entries(kw)) {
+    for (const w of words) {
+      if (lower.includes(w)) {
+        return areas.find(a => a.nombre.toLowerCase() === name)?.id ?? null
       }
     }
   }
+  return null
+}
 
-  // ── Hora → notas ──────────────────────────────────────────────────────────
+// ─── Prioridad ────────────────────────────────────────────────────────────────
+function detectarPrioridad(lower: string): 'alta' | 'media' | 'baja' {
+  if (/urgente|crítico|critico|asap|inmediato|ya mismo/.test(lower)) return 'alta'
+  if (/sin prisa|cuando pueda|baja prioridad|no\s+es\s+urgente/.test(lower)) return 'baja'
+  return 'media'
+}
+
+// ─── Tags ─────────────────────────────────────────────────────────────────────
+const TAG_SKIP = new Set(['axa', 'opa', 'neting', 'personal', 'la', 'el', 'los', 'las', 'un', 'una', 'de', 'del'])
+
+function detectarTags(lower: string): string[] {
+  const tags: string[] = []
+  // "y es de un CONCEPTO", "es de tipo CONCEPTO", "es de CONCEPTO"
+  const patterns = [
+    /\bes\s+de\s+(?:un\s+|una\s+)?(\w+)/g,
+    /\bde\s+tipo\s+(\w+)/g,
+  ]
+  for (const pat of patterns) {
+    let m; pat.lastIndex = 0
+    while ((m = pat.exec(lower)) !== null) {
+      const t = m[1]
+      if (t.length > 2 && !TAG_SKIP.has(t)) tags.push(t)
+    }
+  }
+  return [...new Set(tags)]
+}
+
+// ─── Título limpio ────────────────────────────────────────────────────────────
+const FILLER_START = /^(tengo\s+que|hay\s+que|necesito|necesitas|quiero|quieres|debo|voy\s+a|recuerda(?:me)?|añade|agrega|crea|nueva\s+tarea[:\s]*|por\s+favor\s+)/i
+
+// Puntos de corte: en cuanto aparecen, el título termina ahí
+const TITLE_CUTOFFS = [
+  /,?\s+para\s+(mañana|pasado|el\s+\w+|este|esta|el\s+\d)/i,
+  /,?\s+(?:y\s+)?es\s+de\b/i,
+  /,?\s+(?:y\s+)?es\s+para\b/i,
+  /,?\s+(?:y\s+)?de\s+(?:tipo|área|area)\b/i,
+  /,?\s+(?:y\s+)?urgente\b/i,
+  /,?\s+(?:y\s+)?para\s+axa\b/i,
+  /,?\s+(?:y\s+)?para\s+opa\b/i,
+  /,?\s+(?:y\s+)?para\s+neting\b/i,
+  /,?\s+(?:y\s+)?para\s+personal\b/i,
+  /,?\s+(el\s+\d{1,2}\s+de\s+\w+)/i,
+  /,?\s+(el\s+lunes|el\s+martes|el\s+miércoles|el\s+jueves|el\s+viernes|el\s+sábado|el\s+domingo)/i,
+  /,?\s+a\s+las\s+\d/i,
+]
+
+function extraerTitulo(text: string): string {
+  let t = text.trim()
+
+  // Eliminar filler del inicio
+  t = t.replace(FILLER_START, '').trim()
+
+  // Cortar en el primer punto de corte que encontremos
+  let cutAt = t.length
+  for (const re of TITLE_CUTOFFS) {
+    re.lastIndex = 0
+    const m = re.exec(t)
+    if (m && m.index > 5 && m.index < cutAt) cutAt = m.index
+  }
+  t = t.substring(0, cutAt).replace(/,\s*$/, '').trim()
+
+  // Capitalizar
+  if (t) t = t.charAt(0).toUpperCase() + t.slice(1)
+  // Truncar si es muy largo
+  if (t.length > 72) t = t.substring(0, 69).trim() + '...'
+  return t
+}
+
+// ─── Parser principal ─────────────────────────────────────────────────────────
+function parsear(text: string, areas: Area[]): Partial<TareaInput> {
+  const lower = text.toLowerCase()
+
+  const titulo          = extraerTitulo(text) || text.trim()
+  const descripcion     = text.trim()   // Texto completo como descripción
+  const fecha_vencimiento = detectarFecha(lower)
+  const prioridad       = detectarPrioridad(lower)
+  const area_id         = detectarArea(lower, areas)
+  const etiquetas       = detectarTags(lower)
+
+  // Hora → notas
   const timeM = text.match(/a las\s+(\d{1,2}(?:[:\s]\d{2})?h?)/i)
   const notas = timeM ? `🕐 ${timeM[0].trim()}` : null
 
-  // ── Limpiar título ────────────────────────────────────────────────────────
-  let titulo = text
-    .replace(/pasado\s+mañana/gi, '')
-    .replace(/\bmañana\b|\bhoy\b|esta\s+semana|próxima\s+semana|proxima\s+semana/gi, '')
-    .replace(/el\s+\d{1,2}\s+de\s+\w+/gi, '')
-    .replace(/\bel\s+\d{1,2}\b/gi, '')
-    .replace(/(el\s+)?(lunes|martes|miércoles|miercoles|jueves|viernes|sábado|sabado|domingo)/gi, '')
-    .replace(/a las\s+\d{1,2}(?:[:\s]\d{2})?h?/gi, '')
-    .replace(/\burgente\b|\bcrítico\b|\bcritico\b|\basap\b|\binmediato\b/gi, '')
-    .replace(/\bsin\s+prisa\b|\bcuando\s+pueda\b/gi, '')
-    .replace(/para\s+(axa|opa|neting|personal)/gi, '')
-    .replace(/\s{2,}/g, ' ')
-    .trim()
-
-  // Capitalizar primera letra
-  if (titulo) titulo = titulo.charAt(0).toUpperCase() + titulo.slice(1)
-
   return {
     titulo,
+    descripcion,
     fecha_vencimiento,
     prioridad,
     area_id,
+    etiquetas,
     notas,
-    etiquetas: [],
     estado: 'pendiente',
     orden: 0,
     recurrente: false,
     recurrencia: null,
-    descripcion: null,
   }
 }
 
-// ─── Componente ────────────────────────────────────────────────────────────
+// ─── Componente ───────────────────────────────────────────────────────────────
 export default function QuickAdd({ areas, onParsed }: QuickAddProps) {
-  const [text, setText] = useState('')
+  const [text, setText]         = useState('')
   const [listening, setListening] = useState(false)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null)
@@ -160,35 +196,22 @@ export default function QuickAdd({ areas, onParsed }: QuickAddProps) {
   const startVoice = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SR) {
-      alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome.')
-      return
-    }
+    if (!SR) { alert('Usa Chrome para reconocimiento de voz'); return }
     const r = new SR()
-    r.lang = 'es-ES'
-    r.continuous = false
-    r.interimResults = false
-    r.onstart = () => setListening(true)
+    r.lang = 'es-ES'; r.continuous = false; r.interimResults = false
+    r.onstart  = () => setListening(true)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    r.onresult = (e: any) => {
-      setText(e.results[0][0].transcript)
-      setListening(false)
-    }
-    r.onerror = () => setListening(false)
-    r.onend   = () => setListening(false)
-    r.start()
-    recognitionRef.current = r
+    r.onresult = (e: any) => { setText(e.results[0][0].transcript); setListening(false) }
+    r.onerror  = () => setListening(false)
+    r.onend    = () => setListening(false)
+    r.start(); recognitionRef.current = r
   }
 
-  const stopVoice = () => {
-    recognitionRef.current?.stop()
-    setListening(false)
-  }
+  const stopVoice = () => { recognitionRef.current?.stop(); setListening(false) }
 
   const handleSubmit = () => {
     if (!text.trim()) return
-    const parsed = parseTaskText(text.trim(), areas)
-    onParsed(parsed)
+    onParsed(parsear(text.trim(), areas))
     setText('')
   }
 
@@ -201,7 +224,8 @@ export default function QuickAdd({ areas, onParsed }: QuickAddProps) {
         boxShadow: '0 4px 24px rgba(13,33,55,0.4)',
       }}
     >
-      <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'rgba(196,166,97,0.8)', letterSpacing: '0.12em' }}>
+      <p className="text-xs font-bold uppercase tracking-widest mb-3"
+        style={{ color: 'rgba(196,166,97,0.8)', letterSpacing: '0.12em' }}>
         ✦ Añadir tarea rápida
       </p>
 
@@ -214,7 +238,7 @@ export default function QuickAdd({ areas, onParsed }: QuickAddProps) {
             background: listening ? 'rgba(220,53,69,0.18)' : 'rgba(196,166,97,0.12)',
             border: `1px solid ${listening ? 'rgba(220,53,69,0.45)' : 'rgba(196,166,97,0.28)'}`,
           }}
-          title={listening ? 'Detener grabación' : 'Dictar por voz (Chrome)'}
+          title={listening ? 'Detener' : 'Dictar por voz (Chrome)'}
         >
           {listening
             ? <MicOff size={16} style={{ color: '#dc3545' }} />
@@ -227,12 +251,8 @@ export default function QuickAdd({ areas, onParsed }: QuickAddProps) {
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-          placeholder={
-            listening
-              ? '🎤 Escuchando...'
-              : 'Ej: Llamar a Pepito el martes a las 10h urgente para AXA...'
-          }
-          className="flex-1 rounded-xl px-4 py-0 text-sm outline-none h-10"
+          placeholder={listening ? '🎤 Escuchando...' : 'Ej: Tengo que revisar la póliza de Tamudo, para el viernes, es de AXA...'}
+          className="flex-1 rounded-xl px-4 text-sm outline-none h-10"
           style={{
             background: 'rgba(255,255,255,0.06)',
             border: `1px solid ${listening ? 'rgba(220,53,69,0.35)' : 'rgba(74,155,181,0.22)'}`,
@@ -240,18 +260,14 @@ export default function QuickAdd({ areas, onParsed }: QuickAddProps) {
           }}
         />
 
-        {/* Clear */}
         {text && (
-          <button
-            onClick={() => setText('')}
+          <button onClick={() => setText('')}
             className="flex-none w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <X size={14} style={{ color: 'rgba(168,213,226,0.55)' }} />
           </button>
         )}
 
-        {/* Submit */}
         <button
           onClick={handleSubmit}
           disabled={!text.trim()}
@@ -264,7 +280,7 @@ export default function QuickAdd({ areas, onParsed }: QuickAddProps) {
       </div>
 
       <p className="text-xs mt-2.5" style={{ color: 'rgba(168,213,226,0.38)' }}>
-        Detecta automáticamente: día · hora · urgente · área (AXA · OPA · Neting · Personal)
+        Detecta: día · área (AXA · OPA · Neting · Personal) · urgente · hora — el resto va a descripción
       </p>
     </div>
   )

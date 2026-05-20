@@ -75,13 +75,18 @@ export default function TareasPage() {
   }
 
   const handleSave = async (data: TareaInput, id?: string) => {
-    if (id) {
-      await actualizarTarea(id, data)
-    } else {
-      await crearTarea(data)
+    try {
+      if (id) {
+        await actualizarTarea(id, data)
+      } else {
+        await crearTarea(data)
+      }
+      setModal({ open: false })
+      await load()
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error desconocido'
+      alert(`No se pudo guardar la tarea: ${msg}`)
     }
-    setModal({ open: false })
-    await load()
   }
 
   const handleQuickAdd = (data: Partial<TareaInput>) => {
