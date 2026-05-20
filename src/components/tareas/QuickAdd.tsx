@@ -112,7 +112,7 @@ function detectarTags(lower: string): string[] {
       if (t.length > 2 && !TAG_SKIP.has(t)) tags.push(t)
     }
   }
-  return [...new Set(tags)]
+  return Array.from(new Set(tags))
 }
 
 // ─── Título limpio ────────────────────────────────────────────────────────────
