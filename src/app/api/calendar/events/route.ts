@@ -3,26 +3,76 @@ import { parseIcal } from '@/lib/calendar'
 
 export const dynamic = 'force-dynamic'
 
+// ─── Calendar sources ─────────────────────────────────────────────────────────
+// All are public iCal feeds — safe to include in server-side code.
+const CALENDARS = [
+  {
+    url:   'https://calendar.google.com/calendar/ical/martagarciazarate%40gmail.com/public/basic.ics',
+    name:  'Eventos',
+    color: '#4a9bb5',   // ocean blue
+  },
+  {
+    url:   'https://calendar.google.com/calendar/ical/61611e40e571e31ecd7e6e37864c3c677e1d0b0041a0f7428acd99e3fae711f7%40group.calendar.google.com/public/basic.ics',
+    name:  'Comidas',
+    color: '#c4a661',   // gold
+  },
+  {
+    url:   'https://calendar.google.com/calendar/ical/0f748475bd9584ce4c8322e73cca9a8fd5bc047cf2849bfd6af9376775d79767%40group.calendar.google.com/public/basic.ics',
+    name:  'Comparsa',
+    color: '#e07b39',   // warm orange
+  },
+  {
+    url:   'https://calendar.google.com/calendar/ical/h0ura0ptlm86bqsrv3d3kftgs4%40group.calendar.google.com/public/basic.ics',
+    name:  'Cuidado personal',
+    color: '#2c6e8a',   // deep teal
+  },
+  {
+    url:   'https://calendar.google.com/calendar/ical/urao0r7skaoasitbeaeefuapd0%40group.calendar.google.com/public/basic.ics',
+    name:  'Médico',
+    color: '#dc3545',   // medical red
+  },
+  {
+    url:   'https://calendar.google.com/calendar/ical/utk7v6f8d0v2q75c1etpm38cuk%40group.calendar.google.com/public/basic.ics',
+    name:  'Trabajo',
+    color: '#5a7490',   // slate blue
+  },
+] as const
+
+// ─── Route ───────────────────────────────────────────────────────────────────
 export async function GET() {
-  const url = process.env.GOOGLE_CALENDAR_ICAL_URL
-  if (!url) {
-    return NextResponse.json({ events: [], error: 'GOOGLE_CALENDAR_ICAL_URL not set' })
-  }
-
-  try {
-    const res = await fetch(url, {
-      // Revalidate every 5 minutes to keep events fresh
-      next: { revalidate: 300 },
+  const results = await Promise.allSettled(
+    CALENDARS.map(async cal => {
+      const res = await fetch(cal.url, {
+        next: { revalidate: 300 },   // cache 5 min
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status} for ${cal.name}`)
+      const text = await res.text()
+      return parseIcal(text).map(ev => ({
+        ...ev,
+        // Event's own COLOR property takes precedence; fall back to calendar color
+        color:        ev.color ?? cal.color,
+        calendarName: cal.name,
+      }))
     })
-    if (!res.ok) {
-      return NextResponse.json({ events: [], error: `iCal fetch failed: ${res.status}` })
-    }
-    const text   = await res.text()
-    const events = parseIcal(text)
+  )
 
-    return NextResponse.json({ events })
-  } catch (err) {
-    console.error('[calendar/events]', err)
-    return NextResponse.json({ events: [], error: String(err) })
+  // Collect fulfilled results, log failures
+  const allEvents: ReturnType<typeof parseIcal> = []
+  for (const r of results) {
+    if (r.status === 'fulfilled') {
+      allEvents.push(...r.value)
+    } else {
+      console.warn('[calendar/events] calendar fetch failed:', r.reason)
+    }
   }
+
+  // Deduplicate by UID (same event could appear in two feeds)
+  const seen = new Set<string>()
+  const unique = allEvents.filter(ev => {
+    if (seen.has(ev.id)) return false
+    seen.add(ev.id)
+    return true
+  })
+
+  return NextResponse.json({ events: unique })
 }

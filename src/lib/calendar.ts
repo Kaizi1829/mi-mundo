@@ -3,12 +3,13 @@
 export interface CalEvent {
   id: string
   title: string
-  start: string   // ISO 8601 string (timezone-aware)
-  end: string     // ISO 8601 string
+  start: string        // ISO 8601 string (timezone-aware)
+  end: string          // ISO 8601 string
   allDay: boolean
   description?: string
   location?: string
-  color?: string  // CSS hex color derived from Google Calendar color property
+  color?: string       // CSS hex — from event COLOR prop or calendar-level color
+  calendarName?: string
 }
 
 // ─── iCal Parser (RFC 5545) ───────────────────────────────────────────────────
