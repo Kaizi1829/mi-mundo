@@ -6,6 +6,7 @@ import TaskFilters from '@/components/tareas/TaskFilters'
 import TaskRow from '@/components/tareas/TaskRow'
 import TaskModal from '@/components/tareas/TaskModal'
 import KanbanView from '@/components/tareas/KanbanView'
+import QuickAdd from '@/components/tareas/QuickAdd'
 import type { Tarea, Area, TareaInput } from '@/lib/tareas'
 import {
   getTareas, getAreas, crearTarea, actualizarTarea,
@@ -21,7 +22,7 @@ export default function TareasPage() {
   const [loading, setLoading] = useState(true)
   const [filtros, setFiltros] = useState<Filtros>(filtrosInit)
   const [vista, setVista]     = useState<'lista' | 'kanban'>('lista')
-  const [modal, setModal]     = useState<{ open: boolean; tarea?: Tarea | null }>({ open: false })
+  const [modal, setModal]     = useState<{ open: boolean; tarea?: Tarea | null; prefill?: Partial<TareaInput> }>({ open: false })
 
   // Load data
   const load = useCallback(async () => {
@@ -83,6 +84,10 @@ export default function TareasPage() {
     await load()
   }
 
+  const handleQuickAdd = (data: Partial<TareaInput>) => {
+    setModal({ open: true, tarea: null, prefill: data })
+  }
+
   const handleDelete = async (id: string) => {
     setTareas(ts => ts.filter(t => t.id !== id))
     await eliminarTarea(id)
@@ -130,6 +135,9 @@ export default function TareasPage() {
           Nueva tarea
         </button>
       </div>
+
+      {/* Quick add */}
+      {!loading && <QuickAdd areas={areas} onParsed={handleQuickAdd} />}
 
       {/* Stats */}
       {!loading && <TaskStats tareas={tareas} />}
@@ -217,6 +225,7 @@ export default function TareasPage() {
         <TaskModal
           tarea={modal.tarea}
           areas={areas}
+          prefill={modal.prefill}
           onSave={handleSave}
           onClose={() => setModal({ open: false })}
         />

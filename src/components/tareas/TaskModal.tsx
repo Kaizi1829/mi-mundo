@@ -7,6 +7,7 @@ import { PRIORIDAD_CONFIG, ESTADO_CONFIG } from '@/lib/tareas'
 interface Props {
   tarea?: Tarea | null
   areas: Area[]
+  prefill?: Partial<TareaInput>
   onSave: (data: TareaInput, id?: string) => void
   onClose: () => void
 }
@@ -19,14 +20,14 @@ const empty: TareaInput = {
   recurrente: false, recurrencia: null, orden: 0,
 }
 
-export default function TaskModal({ tarea, areas, onSave, onClose }: Props) {
+export default function TaskModal({ tarea, areas, prefill, onSave, onClose }: Props) {
   const [form, setForm] = useState<TareaInput>(tarea ? {
     titulo: tarea.titulo, descripcion: tarea.descripcion, area_id: tarea.area_id,
     estado: tarea.estado, prioridad: tarea.prioridad,
     fecha_vencimiento: tarea.fecha_vencimiento, fecha_completada: tarea.fecha_completada,
     etiquetas: tarea.etiquetas, notas: tarea.notas,
     recurrente: tarea.recurrente, recurrencia: tarea.recurrencia, orden: tarea.orden,
-  } : { ...empty })
+  } : { ...empty, ...prefill })
   const [tagInput, setTagInput] = useState('')
 
   const set = <K extends keyof TareaInput>(k: K, v: TareaInput[K]) => setForm(f => ({ ...f, [k]: v }))
@@ -68,9 +69,16 @@ export default function TaskModal({ tarea, areas, onSave, onClose }: Props) {
           className="flex items-center justify-between px-6 py-4 border-b"
           style={{ borderColor: 'var(--border-light)', background: 'linear-gradient(135deg, #0d2137, #1a3a5c)' }}
         >
-          <h2 className="text-base font-serif font-semibold text-white">
-            {tarea ? 'Editar tarea' : 'Nueva tarea'}
-          </h2>
+          <div>
+            <h2 className="text-base font-serif font-semibold text-white">
+              {tarea ? 'Editar tarea' : 'Nueva tarea'}
+            </h2>
+            {!tarea && prefill?.titulo && (
+              <p className="text-xs mt-0.5" style={{ color: 'rgba(196,166,97,0.75)' }}>
+                ✦ Detectado automáticamente — revisa y confirma
+              </p>
+            )}
+          </div>
           <button onClick={onClose} className="text-white/60 hover:text-white transition-smooth">
             <X size={18} />
           </button>
