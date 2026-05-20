@@ -4,16 +4,6 @@ import { createClient } from '@supabase/supabase-js'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-const RESEND_API_KEY = process.env.RESEND_API_KEY
-const EMAIL_TO       = process.env.DIGEST_EMAIL_TO ?? ''
-const EMAIL_FROM     = process.env.DIGEST_EMAIL_FROM ?? 'Mi Mundo <onboarding@resend.dev>'
-const CRON_SECRET    = process.env.CRON_SECRET ?? ''
-
 // Colors
 const C = {
   navy:   '#0d2137',
@@ -180,6 +170,16 @@ function buildHTML(
 }
 
 export async function GET(req: NextRequest) {
+  // Init at runtime (not module level) to avoid build errors
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  const RESEND_API_KEY = process.env.RESEND_API_KEY
+  const EMAIL_TO       = process.env.DIGEST_EMAIL_TO ?? ''
+  const EMAIL_FROM     = process.env.DIGEST_EMAIL_FROM ?? 'Mi Mundo <onboarding@resend.dev>'
+  const CRON_SECRET    = process.env.CRON_SECRET ?? ''
+
   // Security check
   const secret = req.headers.get('x-cron-secret') ?? req.nextUrl.searchParams.get('secret')
   if (CRON_SECRET && secret !== CRON_SECRET) {
