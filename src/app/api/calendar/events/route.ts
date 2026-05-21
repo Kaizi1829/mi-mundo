@@ -18,12 +18,12 @@ const CALENDARS = [
     color: '#c4a661',   // gold
   },
   {
-    url:   'https://calendar.google.com/calendar/ical/0f748475bd9584ce4c8322e73cca9a8fd5bc047cf2849bfd6af9376775d79767%40group.calendar.google.com/public/basic.ics',
+    url:   process.env.GOOGLE_ICAL_COMPARSA ?? '',
     name:  'Comparsa',
     color: '#9c5de8',   // purple
   },
   {
-    url:   'https://calendar.google.com/calendar/ical/h0ura0ptlm86bqsrv3d3kftgs4%40group.calendar.google.com/public/basic.ics',
+    url:   process.env.GOOGLE_ICAL_CUIDADO ?? '',
     name:  'Cuidado personal',
     color: '#2c6e8a',   // deep teal
   },
