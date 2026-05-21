@@ -179,7 +179,7 @@ function parsear(text: string, areas: Area[]): Partial<TareaInput> {
     area_id,
     etiquetas,
     notas,
-    estado: 'pendiente',
+    estado: 'sin_empezar',
     orden: 0,
     recurrente: false,
     recurrencia: null,

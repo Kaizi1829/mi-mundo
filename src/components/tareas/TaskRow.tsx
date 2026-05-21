@@ -41,7 +41,7 @@ export default function TaskRow({ tarea, onComplete, onEdit, onDelete, onToggleS
   const vencida    = isVencida(tarea)
   const hoy        = isHoy(tarea)
   const areaColor  = tarea.area?.color ?? 'var(--border)'
-  const hasTags    = tarea.etiquetas.length > 0
+  const hasTags    = (tarea.etiquetas?.length ?? 0) > 0
 
   return (
     <div
@@ -93,7 +93,7 @@ export default function TaskRow({ tarea, onComplete, onEdit, onDelete, onToggleS
           {hasTags && (
             <div className="flex flex-wrap items-center gap-1 mt-1.5">
               <Tag size={10} style={{ color: 'var(--muted)', flexShrink: 0 }} />
-              {tarea.etiquetas.map(tag => {
+              {(tarea.etiquetas ?? []).map(tag => {
                 const c = tagColor(tag)
                 return (
                   <span

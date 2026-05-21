@@ -14,7 +14,7 @@ interface Props {
 
 const empty: TareaInput = {
   titulo: '', descripcion: null, area_id: null,
-  estado: 'pendiente', prioridad: 'media',
+  estado: 'sin_empezar', prioridad: 'media',
   fecha_vencimiento: null, fecha_completada: null,
   etiquetas: [], notas: null,
   recurrente: false, recurrencia: null, orden: 0,
@@ -25,7 +25,7 @@ export default function TaskModal({ tarea, areas, prefill, onSave, onClose }: Pr
     titulo: tarea.titulo, descripcion: tarea.descripcion, area_id: tarea.area_id,
     estado: tarea.estado, prioridad: tarea.prioridad,
     fecha_vencimiento: tarea.fecha_vencimiento, fecha_completada: tarea.fecha_completada,
-    etiquetas: tarea.etiquetas, notas: tarea.notas,
+    etiquetas: tarea.etiquetas ?? [], notas: tarea.notas,
     recurrente: tarea.recurrente, recurrencia: tarea.recurrencia, orden: tarea.orden,
   } : { ...empty, ...prefill })
   const [tagInput, setTagInput] = useState('')

@@ -22,7 +22,7 @@ export interface Tarea {
   descripcion: string | null
   area_id: string | null
   area?: Area
-  estado: 'pendiente' | 'en_progreso' | 'completada' | 'bloqueada'
+  estado: 'sin_empezar' | 'pendiente_cliente' | 'pendiente_cia' | 'completada'
   prioridad: 'alta' | 'media' | 'baja'
   fecha_vencimiento: string | null
   fecha_completada: string | null
@@ -78,10 +78,10 @@ export const PRIORIDAD_CONFIG = {
 }
 
 export const ESTADO_CONFIG = {
-  pendiente:   { label: 'Pendiente',   color: '#5a7490',  bg: 'rgba(90,116,144,0.10)'  },
-  en_progreso: { label: 'En progreso', color: '#2c6e8a',  bg: 'rgba(44,110,138,0.12)'  },
-  completada:  { label: 'Completada',  color: '#28a745',  bg: 'rgba(40,167,69,0.10)'   },
-  bloqueada:   { label: 'Bloqueada',   color: '#dc3545',  bg: 'rgba(220,53,69,0.10)'   },
+  sin_empezar:      { label: 'Sin empezar',         color: '#5a7490',  bg: 'rgba(90,116,144,0.10)'  },
+  pendiente_cliente:{ label: 'Pendiente de cliente', color: '#c4a661',  bg: 'rgba(196,166,97,0.12)'  },
+  pendiente_cia:    { label: 'Pendiente de CIA',     color: '#e07b39',  bg: 'rgba(224,123,57,0.12)'  },
+  completada:       { label: 'Completado',           color: '#22c55e',  bg: 'rgba(34,197,94,0.10)'   },
 }
 
 // API helpers
@@ -135,7 +135,7 @@ export async function actualizarTarea(id: string, updates: Partial<TareaInput>):
 
 export async function completarTarea(id: string, completada: boolean): Promise<void> {
   await db.from('tareas').update({
-    estado: completada ? 'completada' : 'pendiente',
+    estado: completada ? 'completada' : 'sin_empezar',
     fecha_completada: completada ? new Date().toISOString() : null,
   }).eq('id', id)
 }

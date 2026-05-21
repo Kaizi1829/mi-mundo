@@ -4,10 +4,10 @@ import type { Tarea } from '@/lib/tareas'
 import { PRIORIDAD_CONFIG, ESTADO_CONFIG, alertColor, alertLabel } from '@/lib/tareas'
 
 const COLUMNS = [
-  { key: 'pendiente',   label: 'Pendiente',   accent: '#5a7490' },
-  { key: 'en_progreso', label: 'En progreso', accent: '#2c6e8a' },
-  { key: 'bloqueada',   label: 'Bloqueada',   accent: '#dc3545' },
-  { key: 'completada',  label: 'Completada',  accent: '#28a745' },
+  { key: 'sin_empezar',       label: 'Sin empezar',         accent: '#5a7490' },
+  { key: 'pendiente_cliente', label: 'Pendiente de cliente', accent: '#c4a661' },
+  { key: 'pendiente_cia',     label: 'Pendiente de CIA',     accent: '#e07b39' },
+  { key: 'completada',        label: 'Completado',           accent: '#22c55e' },
 ] as const
 
 interface Props {
