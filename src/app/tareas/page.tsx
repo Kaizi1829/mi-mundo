@@ -7,6 +7,7 @@ import TaskRow from '@/components/tareas/TaskRow'
 import TaskModal from '@/components/tareas/TaskModal'
 import KanbanView from '@/components/tareas/KanbanView'
 import QuickAdd from '@/components/tareas/QuickAdd'
+import AlertaVencimientos from '@/components/tareas/AlertaVencimientos'
 import type { Tarea, Area, TareaInput } from '@/lib/tareas'
 import {
   getTareas, getAreas, crearTarea, actualizarTarea,
@@ -143,6 +144,9 @@ export default function TareasPage() {
 
       {/* Quick add */}
       {!loading && <QuickAdd areas={areas} onParsed={handleQuickAdd} />}
+
+      {/* Alerta vencimientos */}
+      {!loading && <AlertaVencimientos tareas={tareas} />}
 
       {/* Stats */}
       {!loading && <TaskStats tareas={tareas} />}

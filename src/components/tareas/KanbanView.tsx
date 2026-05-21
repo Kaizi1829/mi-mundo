@@ -57,11 +57,26 @@ function KanbanCard({ tarea, onComplete, onEdit }: { tarea: Tarea; onComplete: P
         {tarea.titulo}
       </p>
 
-      {/* Area badge */}
+      {/* Area + sub-área badge */}
       {tarea.area && (
-        <div className="flex items-center gap-1 mb-2">
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: tarea.area.color }} />
-          <span className="text-xs" style={{ color: 'var(--muted)' }}>{tarea.area.nombre}</span>
+        <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+          <div className="flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: tarea.area.color }} />
+            <span className="text-xs" style={{ color: 'var(--muted)' }}>{tarea.area.nombre}</span>
+          </div>
+          {tarea.subarea && (
+            <span
+              className="text-xs px-1.5 py-0.5 rounded-full font-medium"
+              style={{
+                background: `${tarea.area.color}18`,
+                color: tarea.area.color,
+                border: `1px solid ${tarea.area.color}30`,
+                fontSize: 10,
+              }}
+            >
+              {tarea.subarea.nombre}
+            </span>
+          )}
         </div>
       )}
 

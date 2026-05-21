@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { X, Plus, Trash2, RefreshCw } from 'lucide-react'
 import type { Tarea, Area, TareaInput } from '@/lib/tareas'
-import { PRIORIDAD_CONFIG, ESTADO_CONFIG } from '@/lib/tareas'
+import { PRIORIDAD_CONFIG, ESTADO_CONFIG, crearSubarea } from '@/lib/tareas'
 
 interface Props {
   tarea?: Tarea | null
@@ -13,7 +13,7 @@ interface Props {
 }
 
 const empty: TareaInput = {
-  titulo: '', descripcion: null, area_id: null,
+  titulo: '', descripcion: null, area_id: null, subarea_id: null,
   estado: 'sin_empezar', prioridad: 'media',
   fecha_vencimiento: null, fecha_completada: null,
   etiquetas: [], notas: null,
@@ -22,15 +22,44 @@ const empty: TareaInput = {
 
 export default function TaskModal({ tarea, areas, prefill, onSave, onClose }: Props) {
   const [form, setForm] = useState<TareaInput>(tarea ? {
-    titulo: tarea.titulo, descripcion: tarea.descripcion, area_id: tarea.area_id,
+    titulo: tarea.titulo, descripcion: tarea.descripcion,
+    area_id: tarea.area_id, subarea_id: tarea.subarea_id ?? null,
     estado: tarea.estado, prioridad: tarea.prioridad,
     fecha_vencimiento: tarea.fecha_vencimiento, fecha_completada: tarea.fecha_completada,
     etiquetas: tarea.etiquetas ?? [], notas: tarea.notas,
     recurrente: tarea.recurrente, recurrencia: tarea.recurrencia, orden: tarea.orden,
   } : { ...empty, ...prefill })
-  const [tagInput, setTagInput] = useState('')
+  const [tagInput, setTagInput]   = useState('')
+  const [newSubarea, setNewSubarea] = useState('')
+  const [savingSubarea, setSavingSubarea] = useState(false)
+
+  // Sub-áreas of the currently selected area
+  const selectedArea = areas.find(a => a.id === form.area_id)
+  const subareas = selectedArea?.subareas ?? []
 
   const set = <K extends keyof TareaInput>(k: K, v: TareaInput[K]) => setForm(f => ({ ...f, [k]: v }))
+
+  // Reset subarea when area changes
+  const setArea = (area_id: string | null) => setForm(f => ({ ...f, area_id, subarea_id: null }))
+
+  const handleAddSubarea = async () => {
+    const nombre = newSubarea.trim()
+    if (!nombre || !form.area_id) return
+    setSavingSubarea(true)
+    const created = await crearSubarea({
+      area_id: form.area_id,
+      nombre,
+      color: selectedArea?.color ?? '#5a7490',
+      orden: subareas.length,
+    })
+    if (created) {
+      // Inject into the local areas list so it shows without reload
+      selectedArea?.subareas?.push(created)
+      set('subarea_id', created.id)
+    }
+    setNewSubarea('')
+    setSavingSubarea(false)
+  }
 
   const addTag = () => {
     const t = tagInput.trim().toLowerCase()
@@ -111,7 +140,7 @@ export default function TaskModal({ tarea, areas, prefill, onSave, onClose }: Pr
                 className="w-full px-3 py-2.5 rounded-xl text-sm border outline-none"
                 style={{ border: '1px solid var(--border)', color: 'var(--text)', background: 'var(--bg)' }}
                 value={form.area_id ?? ''}
-                onChange={e => set('area_id', e.target.value || null)}
+                onChange={e => setArea(e.target.value || null)}
               >
                 <option value="">Sin área</option>
                 {areas.map(a => <option key={a.id} value={a.id}>{a.nombre}</option>)}
@@ -138,6 +167,51 @@ export default function TaskModal({ tarea, areas, prefill, onSave, onClose }: Pr
               </div>
             </div>
           </div>
+
+          {/* Sub-área (visible only when an area with subareas is selected or when area selected) */}
+          {form.area_id && (
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted)' }}>
+                Sub-área
+                {selectedArea && (
+                  <span className="ml-2 font-normal normal-case" style={{ color: selectedArea.color }}>
+                    — {selectedArea.nombre}
+                  </span>
+                )}
+              </label>
+              <div className="flex gap-2">
+                <select
+                  className="flex-1 px-3 py-2.5 rounded-xl text-sm border outline-none"
+                  style={{ border: '1px solid var(--border)', color: 'var(--text)', background: 'var(--bg)' }}
+                  value={form.subarea_id ?? ''}
+                  onChange={e => set('subarea_id', e.target.value || null)}
+                >
+                  <option value="">Sin sub-área</option>
+                  {subareas.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+                </select>
+                {/* Inline new subarea */}
+                <input
+                  className="w-36 px-3 py-2.5 rounded-xl text-sm border outline-none"
+                  style={{ border: '1px solid var(--border)', color: 'var(--text)', background: 'var(--bg)' }}
+                  placeholder="+ Nueva..."
+                  value={newSubarea}
+                  onChange={e => setNewSubarea(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddSubarea() } }}
+                />
+                {newSubarea.trim() && (
+                  <button
+                    type="button"
+                    onClick={handleAddSubarea}
+                    disabled={savingSubarea}
+                    className="px-3 py-2 rounded-xl text-xs font-semibold transition-smooth disabled:opacity-50"
+                    style={{ background: 'var(--accent)', color: '#fff' }}
+                  >
+                    {savingSubarea ? '…' : 'Añadir'}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Estado + Fecha */}
           <div className="grid grid-cols-2 gap-3">

@@ -1,11 +1,20 @@
 import { supabase } from './supabase'
 
+export interface Subarea {
+  id: string
+  area_id: string
+  nombre: string
+  color: string
+  orden: number
+}
+
 export interface Area {
   id: string
   nombre: string
   icono: string
   color: string
   orden: number
+  subareas?: Subarea[]
 }
 
 export interface Subtarea {
@@ -22,6 +31,8 @@ export interface Tarea {
   descripcion: string | null
   area_id: string | null
   area?: Area
+  subarea_id: string | null
+  subarea?: Subarea
   estado: 'sin_empezar' | 'pendiente_cliente' | 'pendiente_cia' | 'completada'
   prioridad: 'alta' | 'media' | 'baja'
   fecha_vencimiento: string | null
@@ -36,9 +47,9 @@ export interface Tarea {
   updated_at: string
 }
 
-export type TareaInput = Omit<Tarea, 'id' | 'created_at' | 'updated_at' | 'area' | 'subtareas'>
+export type TareaInput = Omit<Tarea, 'id' | 'created_at' | 'updated_at' | 'area' | 'subarea' | 'subtareas'>
 
-// Utilities
+// ─── Utilities ────────────────────────────────────────────────────────────────
 export function isVencida(t: Tarea) {
   if (!t.fecha_vencimiento || t.estado === 'completada') return false
   return new Date(t.fecha_vencimiento) < new Date(new Date().toDateString())
@@ -78,49 +89,67 @@ export const PRIORIDAD_CONFIG = {
 }
 
 export const ESTADO_CONFIG = {
-  sin_empezar:      { label: 'Sin empezar',         color: '#5a7490',  bg: 'rgba(90,116,144,0.10)'  },
-  pendiente_cliente:{ label: 'Pendiente de cliente', color: '#c4a661',  bg: 'rgba(196,166,97,0.12)'  },
-  pendiente_cia:    { label: 'Pendiente de CIA',     color: '#e07b39',  bg: 'rgba(224,123,57,0.12)'  },
-  completada:       { label: 'Completado',           color: '#22c55e',  bg: 'rgba(34,197,94,0.10)'   },
+  sin_empezar:       { label: 'Sin empezar',         color: '#5a7490', bg: 'rgba(90,116,144,0.10)'  },
+  pendiente_cliente: { label: 'Pendiente de cliente', color: '#c4a661', bg: 'rgba(196,166,97,0.12)'  },
+  pendiente_cia:     { label: 'Pendiente de CIA',     color: '#e07b39', bg: 'rgba(224,123,57,0.12)'  },
+  completada:        { label: 'Completado',           color: '#22c55e', bg: 'rgba(34,197,94,0.10)'   },
 }
 
 // API helpers
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any
 
+// ─── Areas & Subareas ─────────────────────────────────────────────────────────
 export async function getAreas(): Promise<Area[]> {
-  const { data, error } = await db.from('areas').select('*').order('orden')
+  const { data, error } = await db
+    .from('areas')
+    .select('*, subareas(*)')
+    .order('orden')
   if (error) console.error('[getAreas] error:', error)
-  if (!data?.length) console.warn('[getAreas] returned empty:', { data, error })
   return (data ?? []) as Area[]
 }
 
+export async function crearSubarea(input: Omit<Subarea, 'id'>): Promise<Subarea | null> {
+  const { data, error } = await db.from('subareas').insert(input).select().single()
+  if (error) { console.error('[crearSubarea]', error); return null }
+  return data as Subarea
+}
+
+export async function eliminarSubarea(id: string): Promise<void> {
+  await db.from('subareas').delete().eq('id', id)
+}
+
+export async function actualizarSubarea(id: string, updates: Partial<Omit<Subarea, 'id'>>): Promise<void> {
+  await db.from('subareas').update(updates).eq('id', id)
+}
+
+// ─── Tareas ───────────────────────────────────────────────────────────────────
 export async function getTareas(filtros?: {
-  area_id?: string; estado?: string; prioridad?: string
+  area_id?: string; subarea_id?: string; estado?: string; prioridad?: string
 }): Promise<Tarea[]> {
   let q = db
     .from('tareas')
-    .select('*, area:areas(*), subtareas(*)')
+    .select('*, area:areas(*), subarea:subareas(*), subtareas(*)')
     .order('prioridad', { ascending: true })
     .order('fecha_vencimiento', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false })
 
-  if (filtros?.area_id)   q = q.eq('area_id', filtros.area_id)
-  if (filtros?.estado)    q = q.eq('estado', filtros.estado)
-  if (filtros?.prioridad) q = q.eq('prioridad', filtros.prioridad)
+  if (filtros?.area_id)    q = q.eq('area_id', filtros.area_id)
+  if (filtros?.subarea_id) q = q.eq('subarea_id', filtros.subarea_id)
+  if (filtros?.estado)     q = q.eq('estado', filtros.estado)
+  if (filtros?.prioridad)  q = q.eq('prioridad', filtros.prioridad)
 
   const { data } = await q
   return (data ?? []) as Tarea[]
 }
 
 export async function crearTarea(input: TareaInput): Promise<Tarea | null> {
-  // Don't send fecha_completada on create — DB handles it as null by default
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { fecha_completada, ...payload } = input
   const { data, error } = await db
     .from('tareas')
     .insert(payload)
-    .select('*, area:areas(*), subtareas(*)')
+    .select('*, area:areas(*), subarea:subareas(*), subtareas(*)')
     .single()
   if (error) {
     console.error('[crearTarea] Supabase error:', error)

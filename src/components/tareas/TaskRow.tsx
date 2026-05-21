@@ -42,6 +42,7 @@ export default function TaskRow({ tarea, onComplete, onEdit, onDelete, onToggleS
   const hoy        = isHoy(tarea)
   const areaColor  = tarea.area?.color ?? 'var(--border)'
   const hasTags    = (tarea.etiquetas?.length ?? 0) > 0
+  const subarea    = tarea.subarea
 
   return (
     <div
@@ -110,6 +111,23 @@ export default function TaskRow({ tarea, onComplete, onEdit, onDelete, onToggleS
                   </span>
                 )
               })}
+            </div>
+          )}
+
+          {/* Sub-área badge */}
+          {subarea && (
+            <div className="flex items-center gap-1 mt-1">
+              <span
+                className="text-xs px-2 py-0.5 rounded-full font-medium"
+                style={{
+                  background: `${areaColor}15`,
+                  color: areaColor,
+                  border: `1px solid ${areaColor}30`,
+                  fontSize: 10,
+                }}
+              >
+                {subarea.nombre}
+              </span>
             </div>
           )}
 
