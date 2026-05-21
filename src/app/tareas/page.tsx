@@ -68,7 +68,7 @@ export default function TareasPage() {
   const handleComplete = async (id: string, completada: boolean) => {
     setTareas(ts => ts.map(t => t.id !== id ? t : {
       ...t,
-      estado: completada ? 'completada' : 'pendiente',
+      estado: completada ? 'completada' : 'sin_empezar',
       fecha_completada: completada ? new Date().toISOString() : null,
     }))
     await completarTarea(id, completada)

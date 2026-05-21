@@ -9,15 +9,16 @@ export default function TaskStats({ tareas }: { tareas: Tarea[] }) {
   const completadas = tareas.filter(t => t.estado === 'completada').length
   const vencidas   = tareas.filter(isVencida).length
   const paraHoy    = tareas.filter(t => isHoy(t) && t.estado !== 'completada').length
-  const enProgreso = tareas.filter(t => t.estado === 'en_progreso').length
+  const pendCliente = tareas.filter(t => t.estado === 'pendiente_cliente').length
+  const pendCia     = tareas.filter(t => t.estado === 'pendiente_cia').length
 
   const pct = total > 0 ? Math.round((completadas / total) * 100) : 0
 
   const stats = [
-    { icon: Flame,         label: 'Para hoy',    value: paraHoy,   color: '#c4a661',  bg: 'rgba(196,166,97,0.10)'  },
-    { icon: Clock,         label: 'En progreso', value: enProgreso, color: '#2c6e8a', bg: 'rgba(44,110,138,0.10)'  },
-    { icon: AlertTriangle, label: 'Vencidas',    value: vencidas,  color: '#dc3545',  bg: 'rgba(220,53,69,0.08)'   },
-    { icon: CheckCircle2,  label: 'Completadas', value: completadas,color: '#28a745', bg: 'rgba(40,167,69,0.08)'   },
+    { icon: Flame,         label: 'Para hoy',      value: paraHoy,     color: '#c4a661',  bg: 'rgba(196,166,97,0.10)'  },
+    { icon: Clock,         label: 'Pdte. cliente',  value: pendCliente, color: '#c4a661',  bg: 'rgba(196,166,97,0.10)'  },
+    { icon: AlertTriangle, label: 'Pdte. CIA',      value: pendCia,     color: '#e07b39',  bg: 'rgba(224,123,57,0.08)'  },
+    { icon: CheckCircle2,  label: 'Completadas',    value: completadas, color: '#22c55e',  bg: 'rgba(34,197,94,0.08)'   },
   ]
 
   return (
