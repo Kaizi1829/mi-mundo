@@ -7,7 +7,8 @@ export const dynamic = 'force-dynamic'
 // All are public iCal feeds — safe to include in server-side code.
 const CALENDARS = [
   {
-    url:   'https://calendar.google.com/calendar/ical/martagarciazarate%40gmail.com/public/basic.ics',
+    // Secret iCal URL stored in Vercel env var (repo is public — never hardcode)
+    url:   process.env.GOOGLE_ICAL_EVENTOS ?? '',
     name:  'Eventos',
     color: '#4a9bb5',   // ocean blue
   },
@@ -46,7 +47,7 @@ const CALENDARS = [
 // ─── Route ───────────────────────────────────────────────────────────────────
 export async function GET() {
   const results = await Promise.allSettled(
-    CALENDARS.map(async cal => {
+    CALENDARS.filter(cal => cal.url).map(async cal => {
       const res = await fetch(cal.url, {
         next: { revalidate: 300 },   // cache 5 min
       })
