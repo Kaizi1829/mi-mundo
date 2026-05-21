@@ -6,6 +6,7 @@ import { PRIORIDAD_CONFIG, ESTADO_CONFIG } from '@/lib/tareas'
 interface Filtros {
   busqueda: string
   area_id: string
+  subarea_id: string
   prioridad: string
   estado: string
 }
@@ -20,8 +21,16 @@ interface Props {
 }
 
 export default function TaskFilters({ filtros, onChange, areas, vista, onVista, totalFiltradas }: Props) {
-  const set = (key: keyof Filtros, value: string) => onChange({ ...filtros, [key]: value })
-  const hasFilters = filtros.area_id || filtros.prioridad || filtros.estado || filtros.busqueda
+  const set = (key: keyof Filtros, value: string) => {
+    // Reset subarea when area changes
+    if (key === 'area_id') return onChange({ ...filtros, area_id: value, subarea_id: '' })
+    onChange({ ...filtros, [key]: value })
+  }
+  const hasFilters = filtros.area_id || filtros.subarea_id || filtros.prioridad || filtros.estado || filtros.busqueda
+
+  // Sub-áreas of the selected area
+  const selectedArea = areas.find(a => a.id === filtros.area_id)
+  const subareas = selectedArea?.subareas ?? []
 
   return (
     <div
@@ -85,6 +94,19 @@ export default function TaskFilters({ filtros, onChange, areas, vista, onVista, 
           {areas.map(a => <option key={a.id} value={a.id}>{a.nombre}</option>)}
         </select>
 
+        {/* Sub-área (only shown when an area is selected and has subareas) */}
+        {subareas.length > 0 && (
+          <select
+            className="text-xs rounded-lg px-2.5 py-1.5 border outline-none transition-smooth"
+            style={{ background: 'var(--bg)', border: `1px solid ${filtros.subarea_id ? selectedArea!.color : 'var(--border)'}`, color: filtros.subarea_id ? 'var(--text)' : 'var(--muted)' }}
+            value={filtros.subarea_id}
+            onChange={e => set('subarea_id', e.target.value)}
+          >
+            <option value="">Todas las sub-áreas</option>
+            {subareas.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+          </select>
+        )}
+
         {/* Prioridad */}
         <select
           className="text-xs rounded-lg px-2.5 py-1.5 border outline-none transition-smooth"
@@ -114,7 +136,7 @@ export default function TaskFilters({ filtros, onChange, areas, vista, onVista, 
         {/* Clear filters */}
         {hasFilters && (
           <button
-            onClick={() => onChange({ busqueda: '', area_id: '', prioridad: '', estado: '' })}
+            onClick={() => onChange({ busqueda: '', area_id: '', subarea_id: '', prioridad: '', estado: '' })}
             className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg transition-smooth hover:opacity-80"
             style={{ background: 'rgba(220,53,69,0.08)', color: '#dc3545' }}
           >

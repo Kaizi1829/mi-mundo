@@ -14,8 +14,8 @@ import {
   completarTarea, eliminarTarea, toggleSubtarea,
 } from '@/lib/tareas'
 
-interface Filtros { busqueda: string; area_id: string; prioridad: string; estado: string }
-const filtrosInit: Filtros = { busqueda: '', area_id: '', prioridad: '', estado: '' }
+interface Filtros { busqueda: string; area_id: string; subarea_id: string; prioridad: string; estado: string }
+const filtrosInit: Filtros = { busqueda: '', area_id: '', subarea_id: '', prioridad: '', estado: '' }
 
 export default function TareasPage() {
   const [tareas, setTareas]   = useState<Tarea[]>([])
@@ -39,10 +39,11 @@ export default function TareasPage() {
   // Filter
   const filtradas = useMemo(() => {
     return tareas.filter(t => {
-      if (filtros.busqueda && !t.titulo.toLowerCase().includes(filtros.busqueda.toLowerCase())) return false
-      if (filtros.area_id   && t.area_id   !== filtros.area_id)   return false
-      if (filtros.prioridad && t.prioridad  !== filtros.prioridad) return false
-      if (filtros.estado    && t.estado     !== filtros.estado)    return false
+      if (filtros.busqueda    && !t.titulo.toLowerCase().includes(filtros.busqueda.toLowerCase())) return false
+      if (filtros.area_id    && t.area_id    !== filtros.area_id)    return false
+      if (filtros.subarea_id && t.subarea_id !== filtros.subarea_id) return false
+      if (filtros.prioridad  && t.prioridad  !== filtros.prioridad)  return false
+      if (filtros.estado     && t.estado     !== filtros.estado)     return false
       return true
     })
   }, [tareas, filtros])
